@@ -1,0 +1,326 @@
+const sjonnieAfbeelding = document.getElementById("sjonnie");
+const eetButton = document.getElementById("eten");
+const anaboolButton = document.getElementById("anabolen");
+const spierButton = document.getElementById("spieren");
+const bierButton = document.getElementById("bier");
+const liefdeButton = document.getElementById("liefde");
+const ruzieButton = document.getElementById("ruzie");
+const waterButton = document.getElementById("water");
+const reanimatieButton = document.getElementById("reanimatie");
+const achtergrond = document.getElementById("body");
+
+const anabolenAudio = new Audio('audio/anabolen_audio.mp3');
+const drinkenAudio = new Audio('audio/drinken_audio.mp3');
+const etenAudio = new Audio('audio/eten_audio.mp3');
+const liefdeAudio = new Audio('audio/liefde_audio.mp3');
+const ruzieAudio = new Audio('audio/ruzie_audio.mp3');
+const gewichtenAudio = new Audio('audio/gewichten_audio.mp3');
+const reanimerenAudio = new Audio('audio/reanimeren_audio.mp3');
+const overlijdenAudio = new Audio('audio/overlijden_audio.mp3');
+const shirtScheurAudio = new Audio('audio/scheur_audio.mp3');
+
+let klikTellerEten = 0; // Hiermee houdt het programma bij hoevaak er op de eetButton is gedrukt.
+let klikTellerSpier = 0; // Hiermee houdt het programma bij hoevaak er op de spierButton is gedrukt.
+let klikTellerBier = 0;  // Hiermee houdt het programma bij hoevaak er op de bierButton is gedrukt.
+let klikTellerLiefde = 0; // Hiermee houdt het programma bij hoevaak er op de liefdeButton is gedrukt.
+let klikTellerRuzie = 0; // Hiermee houdt het programma bij hoevaak er op de ruzieButton is gedrukt.
+let klikTellerAnabolen = 0; // Hiermee houdt het programma bij hoevaak er op de anaboolButton is gedrukt.
+let spierNiveau = 0; // Hiermee houdt het programma bij hoe gespierd Sjonnie is.
+let dikNiveau = 0; // Hiermee houdt het programma bij hoe dik Sjonnie is.
+let ruzie = false; // Hiermee houdt het programma bij of Sjonnie ruzie heeft.
+let dood = false; // Hiermee houdt het programma bij of Sjonnie dood is.
+
+ruzieButton.addEventListener("click", sjonnieRuzie);
+eetButton.addEventListener("click", spierEnBierChecker);
+spierButton.addEventListener("click", sjonnieSpieren);
+anaboolButton.addEventListener("click", sjonnieAnabolen);
+bierButton.addEventListener("click", sjonnieZuipen);
+liefdeButton.addEventListener("click", sjonnieLiefde);
+waterButton.addEventListener("click", sjonnieWater);
+reanimatieButton.addEventListener("click", sjonnieReanimeren);
+
+function spierEnBierChecker(input){ 
+    if (dood){
+        return;
+    }
+    if (spierNiveau === 0 && input !== bier){
+        sjonnieDikker();
+        etenAudio.play();
+    }
+    else if (spierNiveau !== 0 && input !== bier){
+        etenAudio.play();
+    }
+    else if (spierNiveau === 0){
+        sjonnieDikker();
+    }
+}
+/*
+Voor het uitvoeren van sjonnieDikker() heb ik gekozen om spierEnBierChecker() te runnen, of sjonnie al spieren heeft en of hij dikker wordt van bier. 
+
+Als hij van het bier drinkt moet namelijk geen eetgeluiden nog afgespeeld worden.
+Als hij al spieren heeft doet eetButton niks, behalve het afspelen van etenAudio.
+
+Als hij geen spieren heeft en hij drinkt geen bier, wordt sjonnieDikker uitgevoerd met eetgeluiden.
+Als hij geen spieren heeft en hij drink bier wordt sjonnieDikker uitgevoerd zonder eetgeluiden, en horen we dus alleen drinkenAudio uit sjonnieZuipen()
+*/
+
+
+function clearTekst(){
+    document.getElementById("eventTekst").innerHTML = "";
+} // Deze functie zorgt ervoor dat pop-up teksten uit andere functies weer verdwijnen via een timeout.
+
+function resetSjonnie(){ 
+    sjonnie.src = "images/sjonnie_anabolen3.png";
+} // Er bestaan 2 situaties waarin sjonnie.src veranderd met een timeout, deze zijn beide als sjonnie.src = sjonne_anabolen3. Mocht er een nieuwe timeout gebruikt worden terwijl sjonnie in een andere staat is, moet hier een aparte functie voor geschreven worden.
+
+function dikNiveauOmhoog(){
+    dikNiveau++;
+    klikTellerEten = 0;
+}
+
+function dikNiveauOmlaag(){
+    dikNiveau--;
+    klikTellerSpier = 0;
+}
+
+function spierNiveauOmhoog(){
+    spierNiveau++;
+    klikTellerSpier = 0;
+}
+
+function spierNiveauOmlaag(){
+    spierNiveau--;
+    klikTellerBier = 0;
+}
+
+function sjonnieDikker(){
+    klikTellerEten++; 
+    if (klikTellerEten === 3){ // Elke knop moet drie keer ingedrukt worden voordat er een effect plaatsvindt, hiervoor wordt dus eerst gecheckt.
+        if (dikNiveau === 0){
+            sjonnie.src = "images/sjonnie_dikker.png";
+        }
+        else if (dikNiveau === 1){
+            sjonnie.src = "images/sjonnie_dikker2.png";
+        }
+        else if (dikNiveau === 2){
+            sjonnie.src = "images/sjonnie_dikker3.png";
+        }
+        else if (dikNiveau === 3){
+            sjonnie.src = "images/sjonnie_dikker4.png";
+        }
+        else if (dikNiveau === 4){
+            sjonnie.src = "images/sjonnie_dikker5.png";
+        } // Hier wordt telkens gecontroleerd op welk dikNiveau Sjonnie is, op basis hiervan wordt bepaald naar welke afbeelding sjonnie.src aangepast moet worden.
+        dikNiveauOmhoog(); 
+    }
+    else if (dikNiveau === 5 && klikTellerEten > 0) { 
+        document.getElementById("eventTekst").innerHTML = "Sjonnie zit helemaal vol!";
+        klikTellerEten = 0;
+        setTimeout(clearTekst, 1000);
+    } // Als Sjonnie de maximale hoeveelheid dik is, kan er niks bij en wordt klikTellerEten elke keer op nul gezet bij het uitvoeren van de functie.
+}
+
+function sjonnieWater(){
+    if (dood){
+        return;
+    }
+    drinkenAudio.play();
+}
+
+function shirtScheur(){
+    sjonnie.src = "images/sjonnie_anabolen3.png";
+}
+
+function sjonnieAnabolen(){
+    if (dood){ 
+        return;
+    }
+    klikTellerAnabolen++;
+    if (spierNiveau === 5){
+        anabolenAudio.play();
+        shirtScheurAudio.play();
+        sjonnie.src = "images/sjonnie_anabolen2.png";
+        setTimeout(shirtScheur, 1000);
+        spierNiveau++;
+    } // Als sjonnie spierNiveau 5 heeft bereikt gaat hij bij het uitvoeren van sjonnieAnabolen naar spierNiveau 6.
+    else if (klikTellerAnabolen === 3 && spierNiveau === 6){
+        anabolenAudio.play();
+        document.getElementById("eventTekst").innerHTML = "Geef Sjonnie niet teveel anabolen!";
+        setTimeout(clearTekst, 1000);
+    } 
+    else if (klikTellerAnabolen === 5){
+        anabolenAudio.play();
+        overlijdenAudio.play();
+        sjonnie.src = "images/sjonnie_overleden_anabolen.png";
+        dood = true;
+        klikTellerAnabolen = 0;
+    } // Doordat waarde "dood" nu op 1 staat, kan Sjonnie gereanimeerd worden. Andere knoppen werken niet meer.
+    else if (spierNiveau < 5){
+        document.getElementById("eventTekst").innerHTML = "Sjonnie is niet gespierd genoeg voor anabolen!";
+        setTimeout(clearTekst, 1000);
+        klikTellerAnabolen = 0;
+    } 
+    else {
+        anabolenAudio.play(); //!
+    }// In alle andere gevallen wordt het anabolenAudio alsnog afgespeeld
+}
+
+function sjonnieZuipen(){
+    if (dood){ // Aangezien sjonnie bij spier niveau 6 dood kan zijn, checken we eerst of hij dat niet is. Anders doet het bier niks.
+        return;
+    }
+    klikTellerBier++;
+    drinkenAudio.play();
+    if (klikTellerBier === 3){
+        if (spierNiveau === 6){ 
+            sjonnie.src = "images/sjonnie_spieren5.png";
+        }
+    
+        else if (spierNiveau === 5){
+            sjonnie.src = "images/sjonnie_spieren4.png";
+        }
+    
+        else if (spierNiveau === 4){
+            sjonnie.src = "images/sjonnie_spieren3.png";
+        }
+    
+        else if (spierNiveau === 3){
+            sjonnie.src = "images/sjonnie_spieren2.png";
+        }
+    
+        else if (spierNiveau === 2){
+            sjonnie.src = "images/sjonnie_spieren.png";
+        }
+    
+        else if (spierNiveau === 1){
+            sjonnie.src = "images/sjonnie_normaal.png";
+        }
+        spierNiveauOmlaag(); // Dit deel van de functie werkt als Sjonnie een spierNiveau hoger dan 0 heeft, dan gaat zijn spierNiveau en de bijbehorende afbeelding steeds omlaag.
+    }
+    else if (spierNiveau === 0) {
+        spierEnBierChecker(bier);
+        klikTellerBier = 0;
+        klikTellerSpier = 0;
+    } // Als spierNiveau = 0 wordt Sjonnie weer dikker, hiervoor wordt spierEnBierChecker() weer uitgevoerd, die sjonnieDikker() weer zal uitvoeren.
+}
+
+function sjonnieSpieren(){
+    if (dood){
+        return;
+    }
+    gewichtenAudio.play();
+    klikTellerSpier++
+    if (klikTellerSpier === 3){
+        if (dikNiveau === 1){
+            sjonnie.src = "images/sjonnie_normaal.png";
+            dikNiveauOmlaag();
+        }
+        else if (dikNiveau === 2){
+            sjonnie.src = "images/sjonnie_dikker.png";
+            dikNiveauOmlaag();
+        }
+        else if (dikNiveau === 3){
+            sjonnie.src = "images/sjonnie_dikker2.png";
+            dikNiveauOmlaag();
+        }
+        else if (dikNiveau === 4){
+            sjonnie.src = "images/sjonnie_dikker3.png";
+            dikNiveauOmlaag();
+        }
+        else if (dikNiveau === 5){
+            sjonnie.src = "images/sjonnie_dikker4.png";
+            dikNiveauOmlaag();
+        } // dit deel van de functie zorgt ervoor dat Sjonnie afvalt, door iedere keer zijn dikNiveau omlaag te halen en sjonnie.src aan te passen.
+    
+        else if (spierNiveau === 0){
+            sjonnie.src = "images/sjonnie_spieren.png";
+            spierNiveauOmhoog();
+        }
+    
+        else if (spierNiveau === 1){
+            sjonnie.src = "images/sjonnie_spieren2.png";
+            spierNiveauOmhoog();
+        }
+    
+        else if (spierNiveau === 2){
+            sjonnie.src = "images/sjonnie_spieren3.png";
+            spierNiveauOmhoog();
+        }
+    
+        else if (spierNiveau === 3){
+            sjonnie.src = "images/sjonnie_spieren4.png";
+            spierNiveauOmhoog();
+        }
+    
+        else if (spierNiveau === 4){
+            sjonnie.src = "images/sjonnie_spieren5.png";
+            spierNiveauOmhoog();
+        } // dit deel van de functie zorgt ervoor dat Sjonnie gespierder wordt, als zijn dikNiveau 0 is. Dit gebeurt door iedere keer zijn elke keer Sjonnies spierNiveau omlhoog te halen en sjonnie.src aan te passen.
+    
+    }
+    else if (spierNiveau === 5) {
+        document.getElementById("eventTekst").innerHTML = "Sjonnie kan zo niet verder, hij heeft anabolen nodig!";
+        setTimeout(clearTekst, 1000);
+        klikTellerSpier = 0;
+    } //Als sjonnie maximaal gespierd is via spierButton kan hij geen spierNiveau meer omhoog, klikTellerSpier moet dan dus elke keer opnieuw op nul gezet worden.
+}
+
+function sjonnieRuzie() {
+    klikTellerRuzie++;
+    if (dood){
+        return;
+    }
+    if (spierNiveau === 6 && klikTellerRuzie < 8){ // Aangezien sjonnie bij spier niveau 6 dood kan zijn, checken we elke keer of hij dat niet is. Anders kan hij namelijk geen ruzie maken.
+        sjonnie.src = "images/sjonnie_ruzie.png";
+        setTimeout(resetSjonnie, 2000);
+        ruzieAudio.play();
+    }
+    else if (spierNiveau === 6 && klikTellerRuzie === 8){
+        sjonnie.src = "images/sjonnie_ruzie.png";
+        setTimeout(resetSjonnie, 2000);
+        document.getElementById("body").style.backgroundImage = "url(images/sjonnie_thuis_zondergezin.png)";
+        ruzieAudio.play();
+        klikTellerRuzie = 0;
+        ruzie = true; // zodat we kunnen onthouden dat Sjonnies vrouw weg is wordt de waarde van "ruzie" 1, deze wordt in sjonnieLiefde() weer 0.
+    }
+    else if (spierNiveau !== 6){
+        document.getElementById("eventTekst").innerHTML = "Sjonnie voelt nog niet genoeg woede om ruzie te maken!";
+        setTimeout(clearTekst, 1000);
+    }
+}
+
+function sjonnieLiefde(){
+    if (!ruzie && !dood){
+        document.getElementById("eventTekst").innerHTML = "Sjonnie heeft al genoeg liefde in zijn leven.";
+        setTimeout(clearTekst, 1000);
+        return;
+    }
+    klikTellerLiefde++
+    if (klikTellerLiefde < 8 && ruzie){
+        sjonnie.src = "images/sjonnie_liefde.png";
+        setTimeout(resetSjonnie, 2000);
+        liefdeAudio.play();
+    }
+    else if (klikTellerLiefde === 8 && ruzie){
+        sjonnie.src = "images/sjonnie_liefde.png";
+        setTimeout(resetSjonnie, 2000);
+        document.getElementById("body").style.backgroundImage = "url(images/sjonnie_thuis.jpeg)";
+        klikTellerLiefde = 0;
+        klikTellerRuzie = 0; //aangezien klikTellerRuzie nu nog hoger kan zijn dan 0, willen we deze weer op nul zetten zodat er weer 8 clicks nodig zijn.
+        ruzie = false;
+        liefdeAudio.play();
+    }
+}
+
+function sjonnieReanimeren(){
+    if (dood){
+        sjonnie.src = "images/sjonnie_normaal.png";
+        dood = false;
+        spierNiveau = 0;
+        reanimerenAudio.play();
+    } // Als sjonnie dood is terwijl er op de reanimatie knop gedrukt wordt, wordt dood op false gezet, zodat hij niet meer dood is. Ook begint sjonnie weer bij zijn normale staat, waardoor zijn spierNiveau van 6 weer naar nul moet gaan.
+    else {
+        document.getElementById("eventTekst").innerHTML = "Sjonnie is kerngezond, hij heeft geen reanimatie nodig!";
+        setTimeout(clearTekst, 1000);
+    } // Als sjonnie niet dood is, doet deze knop niks en verschijnt er een pop-up tekst in de footer.
+}
